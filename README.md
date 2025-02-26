@@ -39,17 +39,17 @@ create_kml(locations, "world_cities.kml")
 ## Data table fields
 
 ### Required
-lat (decimal degrees for latitude)
-lon (decimal degrees for longitude)
+- lat (decimal degrees for latitude)
+- lon (decimal degrees for longitude)
 
 ### Optional
-text (label adjacent to the marked location)
-comment (text to go on the popup marker)
-symbol (marker type; default pushpin)
-color (symbol color; default red)
-symbol_scale (symbol size; default 1.2)
-text_color (color of the text label; default white)
-text_scale (size of the text label; default 1.0)
+- text (label adjacent to the marked location)
+- comment (text to go on the popup marker)
+- symbol (marker type; default pushpin)
+- color (symbol color; default red)
+- symbol_scale (symbol size; default 1.2)
+- text_color (color of the text label; default white)
+- text_scale (size of the text label; default 1.0)
 
 ## Available Symbol Styling Options
 
@@ -71,7 +71,7 @@ Two symbol types are supported:
 - paddle
 
 ### symbol_scale
-A value, usually between 0.5 and 2.0 (default 1.2)
+- value (usually between 0.5 and 2.0; default 1.2)
 
 ## License
 
