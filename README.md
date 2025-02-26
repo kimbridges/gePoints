@@ -33,30 +33,45 @@ locations <- data.frame(
   text_scale = c(1.0, 1.2, 0.8)
 )
 
-# Create a KML file
+# Basic Function: Create a KML file
 create_kml(locations, "world_cities.kml")
 ```
+## Data table fields
 
-## Available Styling Options
+### Required
+lat (decimal degrees for latitude)
+lon (decimal degrees for longitude)
 
-### Colors
-The following colors are supported:
-- red
+### Optional
+text (label adjacent to the marked location)
+comment (text to go on the popup marker)
+symbol (marker type; default pushpin)
+color (symbol color; default red)
+symbol_scale (symbol size; default 1.2)
+text_color (color of the text label; default white)
+text_scale (size of the text label; default 1.0)
+
+## Available Symbol Styling Options
+
+### color
+The following colors are supported for the icon symbols:
+- red (default)
 - blue
 - green
 - yellow
 - purple
 - white
-- black
-- orange
 - pink
-- gray
 - lightblue
+- orange (only for paddle)
 
-### Symbol Types
+### symbol
 Two symbol types are supported:
-- pushpin
+- pushpin (default)
 - paddle
+
+### symbol_scale
+A value, usually between 0.5 and 2.0 (default 1.2)
 
 ## License
 
