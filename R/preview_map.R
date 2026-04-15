@@ -110,25 +110,25 @@ preview_map <- function(data,
     radius <- max(spread_km * 10, 500)
   }
 
-  data$radius <- radius
+  data$circle_radius <- as.numeric(radius)
 
   # Create map with circles (supports full color range)
   m <- googleway::google_map(
-    data     = data,
     key      = api_key,
     location = c(center_lat, center_lon),
     zoom     = zoom,
     map_type = map_type
   ) |>
     googleway::add_circles(
-      lat          = "lat",
-      lon          = "lon",
-      radius       = "radius",
-      fill_colour  = "marker_color",
-      fill_opacity = 0.8,
+      data          = data,
+      lat           = "lat",
+      lon           = "lon",
+      radius        = "circle_radius",
+      fill_colour   = "marker_color",
+      fill_opacity  = 0.8,
       stroke_colour = "marker_color",
       stroke_weight = 2,
-      info_window  = "info"
+      info_window   = "info"
     )
 
   return(m)
