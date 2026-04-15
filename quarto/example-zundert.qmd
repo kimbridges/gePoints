@@ -85,6 +85,8 @@ zundert_styled <- zundert |>
   )
 
 create_kml(zundert_styled, "zundert_styled.kml")
+
+preview_map(zundert_styled)
 ```
 
 ## What the map reveals

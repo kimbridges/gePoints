@@ -89,6 +89,8 @@ neon_styled <- neon |>
   )
 
 create_kml(neon_styled, "neon_styled.kml")
+
+preview_map(neon_styled)
 ```
 
 Now the domain structure is visible: green paddles cluster in the

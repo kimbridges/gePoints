@@ -103,6 +103,8 @@ herb_styled <- herb_data |>
   )
 
 create_kml(herb_styled, "herbaria_styled.kml")
+
+preview_map(herb_styled)
 ```
 
 The scaling formula `0.8 + (Million / 10)` maps the 5–9.5 million

@@ -91,7 +91,14 @@ gt(locations) |>
   tab_source_note(source_note = "Coordinates: Google Maps")
 
 create_kml(locations, "cities_with_comments.kml")
+
+preview_map(locations)
 ```
+
+The `preview_map()` function produces a satellite-view Google Maps
+widget showing the same points that `create_kml()` writes to KML.
+Click a marker to see its comment in a popup. This is a preview —
+the KML file opened in Google Earth provides the full 3D experience.
 
 Now clicking on the Paris marker in Google Earth displays "Eiffel
 Tower" in the information balloon. This is useful for attaching

@@ -89,6 +89,8 @@ kauai_styled <- kauai |>
   )
 
 create_kml(kauai_styled, "kauai_rainfall.kml")
+
+preview_map(kauai_styled)
 ```
 
 The log scaling is important. A linear scale from 531 to 10,004 would
