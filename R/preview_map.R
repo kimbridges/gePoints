@@ -12,6 +12,8 @@
 #'   environment variable \code{GGMAP_GOOGLE_API_KEY}.
 #' @param map_type Map type: \code{"satellite"} (default),
 #'   \code{"roadmap"}, \code{"terrain"}, or \code{"hybrid"}.
+#' @param radius Circle radius in meters (default 8000). Adjust to
+#'   suit the geographic scale of your data.
 #' @param zoom Zoom level (integer). If NULL, the map auto-fits to
 #'   show all points.
 #' @return A \code{googleway} map object (renders as an HTML widget).
@@ -29,6 +31,7 @@
 preview_map <- function(data,
                         api_key  = NULL,
                         map_type = "satellite",
+                        radius   = NULL,
                         zoom     = NULL) {
 
   # Resolve API key
@@ -83,10 +86,11 @@ preview_map <- function(data,
   center_lon <- mean(data$lon, na.rm = TRUE)
 
   # Auto-zoom based on geographic spread
+  lat_range <- max(data$lat) - min(data$lat)
+  lon_range <- max(data$lon) - min(data$lon)
+  spread    <- max(lat_range, lon_range)
+
   if (is.null(zoom)) {
-    lat_range <- max(data$lat) - min(data$lat)
-    lon_range <- max(data$lon) - min(data$lon)
-    spread    <- max(lat_range, lon_range)
     zoom <- if (spread > 100) 2
             else if (spread > 40) 3
             else if (spread > 20) 4
@@ -100,7 +104,15 @@ preview_map <- function(data,
             else 14
   }
 
-  # Create map
+  # Auto-scale circle radius to geographic extent (meters)
+  if (is.null(radius)) {
+    spread_km <- spread * 111  # rough degrees-to-km
+    radius <- max(spread_km * 10, 500)
+  }
+
+  data$radius <- radius
+
+  # Create map with circles (supports full color range)
   m <- googleway::google_map(
     data     = data,
     key      = api_key,
@@ -108,11 +120,15 @@ preview_map <- function(data,
     zoom     = zoom,
     map_type = map_type
   ) |>
-    googleway::add_markers(
-      lat        = "lat",
-      lon        = "lon",
-      colour     = "marker_color",
-      info_window = "info"
+    googleway::add_circles(
+      lat          = "lat",
+      lon          = "lon",
+      radius       = "radius",
+      fill_colour  = "marker_color",
+      fill_opacity = 0.8,
+      stroke_colour = "marker_color",
+      stroke_weight = 2,
+      info_window  = "info"
     )
 
   return(m)
