@@ -9,7 +9,7 @@
 #'   as \code{create_kml()}: \code{lat}, \code{lon}, and optionally
 #'   \code{text}, \code{comment}, \code{color}.
 #' @param api_key Google Maps API key. If NULL, reads from the
-#'   environment variable \code{GOOGLE_MAPS_API_KEY}.
+#'   environment variable \code{GGMAP_GOOGLE_API_KEY}.
 #' @param map_type Map type: \code{"satellite"} (default),
 #'   \code{"roadmap"}, \code{"terrain"}, or \code{"hybrid"}.
 #' @param zoom Zoom level (integer). If NULL, the map auto-fits to
@@ -33,9 +33,9 @@ preview_map <- function(data,
 
   # Resolve API key
   if (is.null(api_key)) {
-    api_key <- Sys.getenv("GOOGLE_MAPS_API_KEY")
+    api_key <- Sys.getenv("GGMAP_GOOGLE_API_KEY")
     if (api_key == "") {
-      stop("No API key provided. Set GOOGLE_MAPS_API_KEY or pass api_key argument.")
+      stop("No API key provided. Set GGMAP_GOOGLE_API_KEY or pass api_key argument.")
     }
   }
 
