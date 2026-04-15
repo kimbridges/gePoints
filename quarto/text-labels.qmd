@@ -1,0 +1,96 @@
+# Text Labels {#sec-text-labels}
+
+Every marker in Google Earth can display a text label — the name that
+floats next to the icon on the map. `gePoints` controls labels through
+the `text`, `text_color`, and `text_scale` columns.
+
+## The text column
+
+The `text` column provides the visible label. If omitted, markers
+appear without labels — useful for dense point clouds where labels
+would overlap, though less common in practice.
+
+```{r}
+#| eval: false
+library(gePoints)
+
+# Labels from the text column
+labeled <- data.frame(
+  text = c("Summit", "Base camp", "Trailhead"),
+  lat  = c(35.4, 35.2, 35.0),
+  lon  = c(-111.6, -111.6, -111.6)
+)
+
+create_kml(labeled, "labeled_points.kml")
+```
+
+## Text color
+
+The `text_color` column sets label color. The default is white, which
+reads well against dark terrain and satellite imagery. Available colors
+are the same as marker colors (see @sec-marker-styles).
+
+Against light backgrounds — snow, sand, urban areas — white labels
+disappear. Switching to black or a dark color solves this:
+
+```{r}
+#| eval: false
+contrast <- data.frame(
+  text       = c("On dark terrain", "On light terrain"),
+  lat        = c(35.0, 35.2),
+  lon        = c(-111.6, -111.6),
+  text_color = c("white", "black")
+)
+
+create_kml(contrast, "text_colors.kml")
+```
+
+In KML, colors are specified in ABGR (alpha-blue-green-red) hex
+format. The `gePoints` package handles this conversion internally
+through `get_abgr_color()`, so you work with color names rather than
+hex codes.
+
+## Text scaling
+
+The `text_scale` column controls label size. The default is 1.0.
+Smaller values (0.6–0.8) reduce clutter when many points are close
+together. Larger values (1.2–1.5) make labels legible at wider zoom
+levels.
+
+```{r}
+#| eval: false
+scaling <- data.frame(
+  text       = c("Small label", "Normal label", "Large label"),
+  lat        = c(35.0, 35.2, 35.4),
+  lon        = c(-111.6, -111.6, -111.6),
+  text_scale = c(0.6, 1.0, 1.5)
+)
+
+create_kml(scaling, "text_scales.kml")
+```
+
+## Combining text and marker styles
+
+Text and marker styling are independent. You can set colors, scales,
+and symbol types for both markers and labels in the same data frame:
+
+```{r}
+#| eval: false
+combined <- data.frame(
+  text         = c("Primary site", "Secondary site", "Reference"),
+  lat          = c(35.0, 35.2, 35.4),
+  lon          = c(-111.6, -111.6, -111.6),
+  color        = c("red", "blue", "green"),
+  symbol       = c("pushpin", "pushpin", "paddle"),
+  symbol_scale = c(1.5, 1.2, 1.0),
+  text_color   = c("yellow", "white", "green"),
+  text_scale   = c(1.2, 1.0, 0.8)
+)
+
+create_kml(combined, "full_styling.kml")
+```
+
+The resulting KML file encodes site hierarchy visually: the primary
+site has a large red pushpin with a bold yellow label, secondary sites
+are standard blue pushpins with white text, and reference points are
+small green paddles with subdued labels.

@@ -1,0 +1,94 @@
+# Example: Cultural Geography — Zundert {#sec-zundert}
+
+Vincent van Gogh was born in 1853 in Zundert, a municipality in the
+province of North Brabant in the southern Netherlands. The landscape
+around Zundert — flat, agricultural, crossed by roads connecting small
+hamlets — shaped his early visual vocabulary. The fields, heath, and
+village life of this area appear throughout his later work.
+
+This example maps 21 hamlets in and around Zundert, demonstrating
+`gePoints` in a cultural geography context where the point data tells
+a story about settlement patterns and landscape.
+
+## The data
+
+`Zundert_hamlets.csv` contains hamlet names with coordinates:
+
+```{r}
+#| eval: false
+library(gePoints)
+library(readr)
+library(dplyr)
+
+zundert <- read_csv("data/Zundert_hamlets.csv")
+zundert
+```
+
+The coordinates cluster tightly — all 21 hamlets fall within a
+rectangle roughly 15 km by 15 km. This density makes the Google Earth
+overlay particularly effective, because at the zoom level needed to see
+all the points, the satellite imagery resolves individual fields and
+roads.
+
+## Basic KML
+
+```{r}
+#| eval: false
+zundert_kml <- zundert |>
+  rename(text = text, lat = lat, lon = lon)
+
+create_kml(zundert_kml, "zundert_basic.kml")
+```
+
+Twenty-one red pushpins on the Dutch countryside. Even this default
+view is interesting — the hamlets are not uniformly distributed. Some
+cluster along roads; others sit in relative isolation.
+
+## Styled version
+
+Use paddle markers with a muted color to complement the landscape
+rather than dominate it:
+
+```{r}
+#| eval: false
+zundert_styled <- zundert |>
+  rename(text = text, lat = lat, lon = lon) |>
+  mutate(
+    color        = "blue",
+    symbol       = "paddle",
+    symbol_scale = 1.0,
+    text_color   = "white",
+    text_scale   = 0.9,
+    comment      = paste0("Hamlet: ", text,
+                          "\nLat: ", round(lat, 4),
+                          "\nLon: ", round(lon, 4))
+  )
+
+create_kml(zundert_styled, "zundert_styled.kml")
+```
+
+## What the map reveals
+
+Zoom to the level where all 21 markers are visible and the settlement
+pattern is clear. The hamlets form a loose network connected by roads
+that follow field boundaries. Most sit at intersections or along
+waterways. The landscape between them is a patchwork of agricultural
+plots — the same fields Van Gogh painted.
+
+Markt marks the center of Zundert proper. Klein Zundert sits just to
+the north. The hamlets with directional or descriptive names —
+Stuivezand (drift sand), Laarheide (heath), Raamberg — encode
+landscape features that are sometimes still visible in the satellite
+imagery.
+
+This is not a scientific dataset in the usual sense, but it
+demonstrates an important use case for `gePoints`: mapping named
+locations from a cultural or historical source onto real terrain. The
+technique works equally well for archaeological sites, historical
+landmarks, literary geographies, or any collection of named places
+with coordinates.
+
+A table of 21 hamlet names tells you very little. The same 21 points
+on Google Earth, with satellite imagery at field-scale resolution,
+tells you about landscape, distance, connectivity, and the physical
+world an artist lived in.

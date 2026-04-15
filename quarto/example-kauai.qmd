@@ -1,0 +1,104 @@
+# Example: Kauai Rainfall Gradient {#sec-kauai}
+
+Kauai has one of the steepest rainfall gradients on Earth. The town of
+Waimea, on the dry leeward coast, receives about 530 mm of rain per
+year. Thirty kilometers away and 1,570 meters up, the summit of Mt.
+Waialeale receives over 10,000 mm — among the highest recorded
+anywhere on the planet. The factor-of-twenty difference across such a
+short distance is driven by orographic lifting: moisture-laden trade
+winds hit the mountain, rise, cool, and release their water on the
+windward slopes.
+
+This example maps 15 rainfall stations along the gradient, using
+marker scaling to encode rainfall amount and color to distinguish
+low, moderate, and extreme precipitation zones.
+
+## The data
+
+`Kauai_rainfall.csv` contains station name, coordinates, elevation in
+meters, and mean annual rainfall in millimeters:
+
+```{r}
+#| eval: false
+library(gePoints)
+library(readr)
+library(dplyr)
+
+kauai <- read_csv("data/Kauai_rainfall.csv")
+kauai
+```
+
+The rainfall column spans from 531 mm (Waimea) to 10,004 mm (Mt.
+Waialeale). The elevation ranges from 6 m at the coast to 1,570 m at
+the summit.
+
+## Basic KML
+
+A first pass with station names as labels:
+
+```{r}
+#| eval: false
+kauai_basic <- kauai |>
+  rename(text = text, lat = lat, lon = lon)
+
+create_kml(kauai_basic, "kauai_basic.kml")
+```
+
+In Google Earth, 15 red pushpins appear scattered across Kauai. The
+spatial pattern is already informative — stations cluster along the
+coast and thin out toward the interior — but the rainfall values are
+invisible.
+
+## Styled version: color and scale by rainfall
+
+Encode rainfall in both color and marker size:
+
+```{r}
+#| eval: false
+kauai_styled <- kauai |>
+  mutate(
+    comment = paste0(
+      "Elevation: ", round(elevation), " m\n",
+      "Rainfall: ", format(round(rainfall), big.mark = ","), " mm/yr"
+    ),
+    color = case_when(
+      rainfall < 1000  ~ "yellow",     # Dry
+      rainfall < 2000  ~ "green",      # Moderate
+      rainfall < 4000  ~ "blue",       # Wet
+      TRUE             ~ "purple"      # Extreme
+    ),
+    symbol = "paddle",
+    symbol_scale = 0.8 + (log10(rainfall) / 4),
+    text_color = "white",
+    text_scale = 0.8
+  )
+
+create_kml(kauai_styled, "kauai_rainfall.kml")
+```
+
+The log scaling is important. A linear scale from 531 to 10,004 would
+make the dry-coast markers nearly invisible. The logarithmic transform
+compresses the range so that all stations are legible while still
+showing clear size differences between the dry coast and the wet
+summit.
+
+## What the map reveals
+
+Open `kauai_rainfall.kml` in Google Earth and the orographic pattern
+jumps out. The yellow markers line the southwest coast. Green markers
+appear at moderate elevations. Blue markers cluster on the windward
+slopes. The purple markers — Mt. Waialeale and its neighbors — sit in
+the interior highlands.
+
+The 3D terrain in Google Earth makes the causal mechanism visible in a
+way no flat map can. Toggle on terrain view and the relationship
+between elevation, aspect, and rainfall is unmistakable. The windward
+slopes are green and deeply eroded; the leeward coast is brown and
+dry. The markers sit in their landscape context.
+
+Click any marker to see the popup: elevation and rainfall for that
+station. The transition from 531 mm at Waimea to 10,004 mm at
+Waialeale — a factor of nearly 20 — happens over a horizontal
+distance shorter than a half-marathon.
+
+This is a 15-point dataset, but it tells a complete geophysical story.

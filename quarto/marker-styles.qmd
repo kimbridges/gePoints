@@ -1,0 +1,107 @@
+# Marker Styles {#sec-marker-styles}
+
+`gePoints` supports two marker types (pushpins and paddles) in up to
+nine colors. This chapter shows how to control marker appearance through
+the `color`, `symbol`, and `symbol_scale` columns.
+
+## Symbol types
+
+The `symbol` column accepts two values:
+
+- `"pushpin"` — the default; a pin icon that appears to stick into the
+  terrain
+- `"paddle"` — a circular marker on a stick, useful when you want a
+  cleaner look or need to distinguish categories
+
+```{r}
+#| eval: false
+library(gePoints)
+
+markers <- data.frame(
+  text   = c("Pushpin marker", "Paddle marker"),
+  lat    = c(35.0, 35.0),
+  lon    = c(-110.0, -109.5),
+  symbol = c("pushpin", "paddle")
+)
+
+create_kml(markers, "symbol_types.kml")
+```
+
+## Available colors
+
+Both pushpins and paddles support the following colors:
+
+| Color | Pushpin | Paddle |
+|-------|---------|--------|
+| red | yes | yes |
+| blue | yes | yes |
+| green | yes | yes |
+| yellow | yes | yes |
+| purple | yes | yes |
+| white | yes | yes |
+| pink | yes | yes |
+| lightblue | yes | yes |
+| orange | — | yes |
+
+Orange is available only for paddle markers. If you specify orange with
+a pushpin, the marker defaults to red.
+
+```{r}
+#| eval: false
+# Demonstrate all pushpin colors
+colors <- c("red", "blue", "green", "yellow",
+            "purple", "white", "pink", "lightblue")
+
+color_demo <- data.frame(
+  text   = colors,
+  lat    = seq(35.0, 35.7, length.out = 8),
+  lon    = rep(-110.0, 8),
+  color  = colors,
+  symbol = rep("pushpin", 8)
+)
+
+create_kml(color_demo, "pushpin_colors.kml")
+```
+
+## Symbol scaling
+
+The `symbol_scale` column controls marker size. The default is 1.2.
+Values between 0.5 and 2.0 cover most practical needs. Smaller values
+work well for dense point clouds; larger values make isolated markers
+easier to spot at wide zoom levels.
+
+```{r}
+#| eval: false
+scales <- data.frame(
+  text         = c("Small (0.5)", "Default (1.2)", "Large (2.0)"),
+  lat          = c(35.0, 35.2, 35.4),
+  lon          = c(-110.0, -110.0, -110.0),
+  symbol_scale = c(0.5, 1.2, 2.0)
+)
+
+create_kml(scales, "symbol_scales.kml")
+```
+
+## Mixing styles in one file
+
+Every row in the data frame can have its own styling. This is the
+mechanism for encoding categorical variables visually — for example,
+color by site type, symbol by data source:
+
+```{r}
+#| eval: false
+mixed <- data.frame(
+  text   = c("Weather station", "Stream gauge",
+             "Weather station", "Stream gauge"),
+  lat    = c(35.0, 35.1, 35.3, 35.4),
+  lon    = c(-110.0, -110.0, -110.5, -110.5),
+  color  = c("blue", "green", "blue", "green"),
+  symbol = c("pushpin", "paddle", "pushpin", "paddle")
+)
+
+create_kml(mixed, "mixed_styles.kml")
+```
+
+In Google Earth, the visual distinction between blue pushpins (weather
+stations) and green paddles (stream gauges) is immediate. This is a
+simple form of thematic mapping — no GIS software required.

@@ -1,0 +1,97 @@
+# Getting Started
+
+## Installation
+
+`gePoints` is hosted on GitHub. Install it with `devtools`:
+
+```{r}
+#| eval: false
+# install.packages("devtools")
+devtools::install_github("kimbridges/gePoints")
+```
+
+The package depends on `xml2` for KML generation, `readr` for data
+import, and `rlang` for internal utilities. These will be installed
+automatically.
+
+## Your first KML file
+
+The core workflow is three steps: build a data frame, call
+`create_kml()`, and open the output in Google Earth.
+
+```{r}
+#| eval: false
+library(gePoints)
+
+# Three cities, three colors
+locations <- data.frame(
+  text = c("New York City", "Paris", "Sydney"),
+  lat  = c(40.7484, 48.8584, -33.8568),
+  lon  = c(-73.9857, 2.2945, 151.2153)
+)
+
+create_kml(locations, "three_cities.kml")
+```
+
+This produces a file called `three_cities.kml`. Double-click it to
+open in Google Earth. You will see three red pushpin markers — one in
+Manhattan, one near the Eiffel Tower, one at the Sydney Opera House —
+each labeled with the city name.
+
+## What just happened
+
+The `create_kml()` function did several things:
+
+1. Read the data frame and found the required columns: `lat` and `lon`
+2. Applied default styling (red pushpin, scale 1.2, white text label)
+   to every row because no styling columns were provided
+3. Generated the KML XML with one `<Placemark>` element per row
+4. Wrote the result to `three_cities.kml`
+
+The only required columns are `lat` and `lon`. Everything else —
+labels, colors, marker types, scaling — is optional with sensible
+defaults.
+
+## Required and optional columns
+
+| Column | Required | Default | Description |
+|--------|----------|---------|-------------|
+| `lat` | yes | — | Latitude in decimal degrees |
+| `lon` | yes | — | Longitude in decimal degrees |
+| `text` | no | — | Label displayed next to the marker |
+| `comment` | no | — | Text shown in the popup balloon |
+| `color` | no | `"red"` | Marker color |
+| `symbol` | no | `"pushpin"` | Marker type: `"pushpin"` or `"paddle"` |
+| `symbol_scale` | no | `1.2` | Marker size (0.5–2.0 typical) |
+| `text_color` | no | `"white"` | Label text color |
+| `text_scale` | no | `1.0` | Label text size |
+
+## Adding a comment column
+
+The `comment` column populates the popup balloon that appears when you
+click a marker in Google Earth:
+
+```{r}
+#| eval: false
+locations <- data.frame(
+  text    = c("New York City", "Paris", "Sydney"),
+  lat     = c(40.7484, 48.8584, -33.8568),
+  lon     = c(-73.9857, 2.2945, 151.2153),
+  comment = c("Empire State Building", "Eiffel Tower", "Opera House")
+)
+
+create_kml(locations, "cities_with_comments.kml")
+```
+
+Now clicking on the Paris marker in Google Earth displays "Eiffel
+Tower" in the information balloon. This is useful for attaching
+metadata — site descriptions, measurement values, dates — to individual
+points without cluttering the map labels.
+
+## Next steps
+
+The next two chapters cover the full range of marker styling: symbol
+types and colors (@sec-marker-styles), and text label formatting
+(@sec-text-labels). After that, @sec-csv shows how to read data
+directly from CSV files, which is the typical workflow for real
+datasets.

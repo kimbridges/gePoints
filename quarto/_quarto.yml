@@ -1,0 +1,27 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "gePoints"
+  subtitle: "Visualizing Point Data in Google Earth with R"
+  author: "Kim Bridges"
+  date: today
+  chapters:
+    - index.qmd
+    - getting-started.qmd
+    - marker-styles.qmd
+    - text-labels.qmd
+    - working-with-csv.qmd
+    - example-neon.qmd
+    - example-herbaria.qmd
+    - example-kauai.qmd
+    - example-zundert.qmd
+
+format:
+  html:
+    theme: cosmo
+    code-copy: true
+    code-overflow: wrap
+    toc: true
+    toc-depth: 3

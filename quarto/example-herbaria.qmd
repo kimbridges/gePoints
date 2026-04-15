@@ -1,0 +1,116 @@
+# Example: Herbaria of the World {#sec-herbaria}
+
+A herbarium is a collection of preserved plant specimens — pressed,
+dried, mounted on archival paper, and filed by taxonomic name. The
+major herbaria of the world hold millions of specimens, some collected
+centuries ago, and serve as the primary reference for plant taxonomy
+and biodiversity research. Knowing where the large collections are
+matters for any botanist planning a research visit or requesting a
+loan.
+
+This example maps the nine largest herbaria, with specimen counts
+encoded in the popup balloons and marker scaling proportional to
+collection size.
+
+## The data
+
+Two files are needed. The first, `herbaria.csv`, has names,
+abbreviations, cities, and collection sizes:
+
+```{r}
+#| eval: false
+library(gePoints)
+library(readr)
+library(dplyr)
+
+herbaria <- read_csv("data/herbaria.csv")
+herbaria
+```
+
+The second, `herbaria_loc.csv`, has coordinates keyed by the standard
+herbarium abbreviation:
+
+```{r}
+#| eval: false
+coords <- read_csv("data/herbaria_loc.csv")
+coords
+```
+
+Join them on the abbreviation code:
+
+```{r}
+#| eval: false
+herb_data <- herbaria |>
+  left_join(coords, by = "Abbreviation") |>
+  rename(
+    lat = Latitude,
+    lon = Longitude
+  )
+herb_data
+```
+
+## Creating the KML
+
+The basic version uses herbarium names as labels:
+
+```{r}
+#| eval: false
+herb_kml <- herb_data |>
+  mutate(
+    text    = trimws(Name),
+    comment = paste0(trimws(City), " — ", trimws(Size), " specimens")
+  )
+
+create_kml(herb_kml, "herbaria_basic.kml")
+```
+
+## Styled version with scaled markers
+
+Larger collections get larger markers. We parse the size text to
+extract approximate numeric values, then scale:
+
+```{r}
+#| eval: false
+herb_styled <- herb_data |>
+  mutate(
+    text    = trimws(Abbreviation),
+    comment = paste0(trimws(Name), "\n",
+                     trimws(City), "\n",
+                     trimws(Size), " specimens"),
+    # Approximate millions from the Size text
+    millions = case_when(
+      grepl("9.5", Size) ~ 9.5,
+      grepl("8",   Size) ~ 8.0,
+      grepl("7",   Size) ~ 7.0,
+      grepl("6",   Size) ~ 6.0,
+      grepl("5.5", Size) ~ 5.5,
+      grepl("5",   Size) ~ 5.0,
+      TRUE               ~ 5.0
+    ),
+    symbol_scale = 0.8 + (millions / 10),
+    color  = "green",
+    symbol = "paddle",
+    text_color = "white"
+  )
+
+create_kml(herb_styled, "herbaria_styled.kml")
+```
+
+## What the map reveals
+
+The nine largest herbaria are concentrated in three regions: Western
+Europe (Paris, London, Geneva, Vienna), the northeastern United States
+(New York, Cambridge, Washington), and St. Louis. A single point
+sits in isolation at St. Petersburg.
+
+The clustering is not accidental. The great herbaria were built during
+the age of botanical exploration, when European colonial powers and
+wealthy American institutions funded collecting expeditions worldwide.
+The geographic concentration of specimens in the global north, drawn
+from ecosystems across all continents, is one of the enduring
+structural features of botanical science.
+
+Plotting these nine points on Google Earth makes that structure visible
+at a glance. The scaled markers convey relative size — Paris is
+clearly the largest, and the five-million-specimen institutions in
+Washington and Cambridge are noticeably smaller than Kew or New York.

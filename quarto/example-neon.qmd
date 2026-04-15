@@ -1,0 +1,100 @@
+# Example: Ecological Research Sites {#sec-neon}
+
+The National Ecological Observatory Network (NEON) operates 20 core
+research sites spanning the continental US, Alaska, Hawaii, and Puerto
+Rico. Each site represents one of 20 eco-climatic domains — from
+tundra at Toolik Lake on Alaska's North Slope to tropical forest at
+Olaa on the Big Island of Hawaii. These sites form the backbone of a
+continental-scale ecological monitoring program designed to run for 30
+years.
+
+Plotting the 20 core sites on Google Earth reveals the spatial logic
+of NEON's design: the domains tile the continent, and each core site
+sits within its domain's characteristic ecosystem. The distances
+between sites, and their positions relative to terrain, coastlines,
+and climate gradients, are immediately visible in a way that a table
+of coordinates cannot convey.
+
+## The data
+
+The file `NEON_core_sites.txt` contains the 20 core sites with domain
+number, domain name, site name, latitude, and longitude. The data
+comes from the NEON strategy document published in 2011.
+
+```{r}
+#| eval: false
+library(gePoints)
+library(readr)
+library(dplyr)
+
+neon <- read_csv("data/NEON_core_sites.txt", skip = 1,
+                 col_names = c("domain", "domain_name",
+                               "site_name", "lat", "lon"))
+neon
+```
+
+The file has a header comment on the first line (the source URL), so
+we skip it and provide column names directly.
+
+## Creating the KML
+
+For a first pass, map site names to labels and use default styling:
+
+```{r}
+#| eval: false
+neon_kml <- neon |>
+  mutate(text = site_name)
+
+create_kml(neon_kml, "neon_core_sites.kml")
+```
+
+Open `neon_core_sites.kml` in Google Earth. Twenty red pushpins span
+the continent from Puerto Rico to the Arctic. The spatial coverage is
+striking — this is a network designed to capture the full range of
+North American ecosystems.
+
+## Styled version
+
+Color-coding by broad region makes the geographic pattern clearer:
+
+```{r}
+#| eval: false
+neon_styled <- neon |>
+  mutate(
+    text = site_name,
+    color = case_when(
+      domain <= 4  ~ "green",     # Eastern
+      domain <= 8  ~ "blue",      # Central-east
+      domain <= 11 ~ "yellow",    # Plains
+      domain <= 15 ~ "red",       # Western
+      domain <= 17 ~ "purple",    # Pacific
+      TRUE         ~ "lightblue"  # Arctic/Tropical
+    ),
+    symbol = "paddle",
+    symbol_scale = 1.5,
+    comment = paste0("Domain ", domain, ": ", domain_name)
+  )
+
+create_kml(neon_styled, "neon_styled.kml")
+```
+
+Now the domain structure is visible: green paddles cluster in the
+east, yellow across the plains, red through the mountain west, purple
+along the Pacific coast, and light blue at the high-latitude and
+tropical extremes. The popup balloon for each site shows its domain
+number and name.
+
+## What the map reveals
+
+A table of 20 latitude/longitude pairs is difficult to interpret. The
+Google Earth overlay makes several things immediately apparent:
+
+The eastern domains are geographically smaller — higher ecosystem
+diversity packed into less area. The western domains are vast, driven
+by topography rather than latitude. Alaska's two sites (Toolik Lake
+and Caribou Creek) are separated by hundreds of kilometers of roadless
+terrain, and the Hawaiian site sits in isolation in the middle of the
+Pacific.
+
+This is a 20-point dataset that takes five minutes to process. The
+visual payoff is substantial.
