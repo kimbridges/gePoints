@@ -17,35 +17,49 @@ of coordinates cannot convey.
 
 ## The data
 
-The file `NEON_core_sites.txt` contains the 20 core sites with domain
-number, domain name, site name, latitude, and longitude. The data
-comes from the NEON strategy document published in 2011.
-
 ```{r}
 #| eval: false
 library(gePoints)
 library(readr)
 library(dplyr)
+library(gt)
 
-neon <- read_csv("data/NEON_core_sites.txt", skip = 1,
-                 col_names = c("domain", "domain_name",
-                               "site_name", "lat", "lon"))
-neon
+neon <- read_csv(
+"Domain, Domain_Name,              text,                                      lat,        lon
+1,       Northeast,                Harvard Forest,                            42.53690,  -72.17266
+2,       Mid-Atlantic,             Smithsonian Conservation Biology Inst,     38.89292,  -78.13950
+3,       Southeast,                Ordway-Swisher Biological Station,         29.68927,  -81.99343
+4,       Atlantic Neotropical,     Guanica Forest,                            17.96955,  -66.86870
+5,       Great Lakes,              UNDERC,                                    46.23388,  -89.53725
+6,       Prairie Peninsula,        Konza Prairie Biological Station,          39.10077,  -96.56390
+7,       Appalachian/Cumberland,   Oak Ridge,                                 35.96412,  -84.28260
+8,       Ozarks Complex,           Talladega National Forest,                 32.95046,  -87.39327
+9,       Northern Plains,          Woodworth,                                 47.12802,  -99.24133
+10,      Central Plains,           Central Plains Experimental Range,         40.81554, -104.74543
+11,      Southern Plains,          Caddo/LBJ National Grassland,              33.40123,  -97.57000
+12,      Northern Rockies,         Yellowstone Northern Range,                44.95350, -110.53914
+13,      Southern Rockies,         Niwot Ridge/Mountain Research Station,     40.05421, -105.58217
+14,      Desert Southwest,         Santa Rita Experimental Range,             31.91068, -110.83549
+15,      Great Basin,              Onaqui-Ault,                               40.17759, -112.45244
+16,      Pacific Northwest,        Wind River Experimental Forest,            45.82049, -121.95191
+17,      Pacific Southwest,        San Joaquin,                               37.10872, -119.73156
+18,      Tundra,                   Toolik Lake,                               68.66109, -149.37047
+19,      Taiga,                    Caribou Creek - Poker Flats Watershed,     65.15401, -147.50258
+20,      Pacific Tropical,         Olaa,                                      19.55479, -155.26418"
+)
+
+gt(neon) |>
+  tab_caption(caption = "NEON Core Research Sites") |>
+  tab_source_note(source_note = "Source: NEON Strategy Document, 2011")
 ```
 
-The file has a header comment on the first line (the source URL), so
-we skip it and provide column names directly.
+## Basic KML
 
-## Creating the KML
-
-For a first pass, map site names to labels and use default styling:
+For a first pass, use default styling:
 
 ```{r}
 #| eval: false
-neon_kml <- neon |>
-  mutate(text = site_name)
-
-create_kml(neon_kml, "neon_core_sites.kml")
+create_kml(neon, "neon_core_sites.kml")
 ```
 
 Open `neon_core_sites.kml` in Google Earth. Twenty red pushpins span
@@ -61,18 +75,17 @@ Color-coding by broad region makes the geographic pattern clearer:
 #| eval: false
 neon_styled <- neon |>
   mutate(
-    text = site_name,
     color = case_when(
-      domain <= 4  ~ "green",     # Eastern
-      domain <= 8  ~ "blue",      # Central-east
-      domain <= 11 ~ "yellow",    # Plains
-      domain <= 15 ~ "red",       # Western
-      domain <= 17 ~ "purple",    # Pacific
+      Domain <= 4  ~ "green",     # Eastern
+      Domain <= 8  ~ "blue",      # Central-east
+      Domain <= 11 ~ "yellow",    # Plains
+      Domain <= 15 ~ "red",       # Western
+      Domain <= 17 ~ "purple",    # Pacific
       TRUE         ~ "lightblue"  # Arctic/Tropical
     ),
-    symbol = "paddle",
+    symbol       = "paddle",
     symbol_scale = 1.5,
-    comment = paste0("Domain ", domain, ": ", domain_name)
+    comment      = paste0("Domain ", Domain, ": ", Domain_Name)
   )
 
 create_kml(neon_styled, "neon_styled.kml")
@@ -85,9 +98,6 @@ tropical extremes. The popup balloon for each site shows its domain
 number and name.
 
 ## What the map reveals
-
-A table of 20 latitude/longitude pairs is difficult to interpret. The
-Google Earth overlay makes several things immediately apparent:
 
 The eastern domains are geographically smaller — higher ecosystem
 diversity packed into less area. The western domains are vast, driven

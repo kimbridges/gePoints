@@ -22,13 +22,19 @@ The core workflow is three steps: build a data frame, call
 ```{r}
 #| eval: false
 library(gePoints)
+library(readr)
+library(gt)
 
-# Three cities, three colors
-locations <- data.frame(
-  text = c("New York City", "Paris", "Sydney"),
-  lat  = c(40.7484, 48.8584, -33.8568),
-  lon  = c(-73.9857, 2.2945, 151.2153)
+locations <- read_csv(
+"text,          lat,       lon
+New York City,  40.7484,  -73.9857
+Paris,          48.8584,    2.2945
+Sydney,        -33.8568,  151.2153"
 )
+
+gt(locations) |>
+  tab_caption(caption = "Three World Cities") |>
+  tab_source_note(source_note = "Coordinates: Google Maps")
 
 create_kml(locations, "three_cities.kml")
 ```
@@ -73,12 +79,16 @@ click a marker in Google Earth:
 
 ```{r}
 #| eval: false
-locations <- data.frame(
-  text    = c("New York City", "Paris", "Sydney"),
-  lat     = c(40.7484, 48.8584, -33.8568),
-  lon     = c(-73.9857, 2.2945, 151.2153),
-  comment = c("Empire State Building", "Eiffel Tower", "Opera House")
+locations <- read_csv(
+"text,          lat,       lon,      comment
+New York City,  40.7484,  -73.9857, Empire State Building
+Paris,          48.8584,    2.2945, Eiffel Tower
+Sydney,        -33.8568,  151.2153, Opera House"
 )
+
+gt(locations) |>
+  tab_caption(caption = "Three Cities with Landmarks") |>
+  tab_source_note(source_note = "Coordinates: Google Maps")
 
 create_kml(locations, "cities_with_comments.kml")
 ```
@@ -92,6 +102,5 @@ points without cluttering the map labels.
 
 The next two chapters cover the full range of marker styling: symbol
 types and colors (@sec-marker-styles), and text label formatting
-(@sec-text-labels). After that, @sec-csv shows how to read data
-directly from CSV files, which is the typical workflow for real
-datasets.
+(@sec-text-labels). After that, @sec-data-preparation discusses
+strategies for organizing your data before calling `create_kml()`.

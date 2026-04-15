@@ -1,0 +1,127 @@
+# Data Preparation {#sec-data-preparation}
+
+Every `gePoints` workflow begins with a data frame. How that data
+frame is built matters — not just for the code, but for the clarity
+and reproducibility of the document. This chapter describes two
+strategies for bringing data into a `gePoints` analysis, and argues
+for a discipline of presenting data in formatted tables from the
+start.
+
+## Strategy 1: Inline data
+
+For small datasets — roughly 5 to 30 rows — the best approach is to
+embed the data directly in the code chunk using `read_csv()` with an
+inline string. The data is visible, the columns are aligned, and the
+reader sees exactly what the analysis operates on:
+
+```{r}
+#| eval: false
+library(readr)
+library(gt)
+
+sites <- read_csv(
+"text,             lat,        lon
+Harvard Forest,    42.53690,  -72.17266
+Ordway-Swisher,    29.68927,  -81.99343
+Konza Prairie,     39.10077,  -96.56390
+Yellowstone,       44.95350, -110.53914
+Toolik Lake,       68.66109, -149.37047"
+)
+
+gt(sites) |>
+  tab_caption(caption = "Selected NEON Core Sites") |>
+  tab_source_note(source_note = "Source: NEON Strategy Document, 2011")
+```
+
+Aligning the columns takes a few minutes but eliminates an entire
+category of errors. A latitude value in the longitude column stands
+out immediately when the numbers are stacked. With unaligned CSV,
+that same error is invisible.
+
+This is the approach used throughout the example chapters of this
+book. The datasets are small — 8 to 21 rows — and the visual
+inspection of aligned data is worth the formatting effort.
+
+## Strategy 2: External CSV files
+
+For larger datasets, or data that updates independently of the
+document, reading from an external file is appropriate:
+
+```{r}
+#| eval: false
+sites <- read_csv("data/NEON_core_sites.txt")
+```
+
+When using external files, the data is hidden — the reader cannot
+see it without opening the file separately. A `gt` table in the
+rendered document compensates for this, but the code itself is less
+self-contained.
+
+External files also introduce path dependencies. The code chunk must
+find the file relative to the document's working directory, which
+varies depending on whether you render from the command line, from
+RStudio, or from a Quarto project. For reproducible documentation,
+inline data avoids this problem entirely.
+
+## The `gt` table discipline
+
+Every data frame in this book is displayed as a formatted `gt` table
+with a title and a source note. This is not decorative — it serves
+three purposes:
+
+1. **Verification.** The table shows exactly what `create_kml()` will
+   receive. If a coordinate is wrong, it is wrong in the table too,
+   and a careful reader will catch it.
+2. **Provenance.** The source note records where the data came from.
+   This is metadata that a bare data frame does not carry.
+3. **Presentation.** A well-formatted table in the rendered document
+   respects the reader. It signals that the data was inspected, not
+   just dumped.
+
+The `gt` package is already a dependency of `gePoints`, so no
+additional installation is needed.
+
+## Column naming conventions
+
+`create_kml()` expects specific column names. When your source data
+uses different names — `Latitude` instead of `lat`, `Site_Name`
+instead of `text` — you have two choices. For inline data, simply
+name the columns correctly when you type them. For external files,
+rename after import:
+
+```{r}
+#| eval: false
+library(dplyr)
+
+sites <- read_csv("data/external_file.csv") |>
+  rename(
+    text = Site_Name,
+    lat  = Latitude,
+    lon  = Longitude
+  )
+```
+
+The inline approach is simpler: you control the column names at the
+point of entry. This is another advantage of embedding small datasets
+directly in the code.
+
+## Adding styling columns
+
+Styling columns — `color`, `symbol`, `symbol_scale`, `text_color`,
+`text_scale` — can be included in the inline data or added after
+import with `mutate()`. For datasets where every row has the same
+style, `mutate()` is cleaner:
+
+```{r}
+#| eval: false
+sites <- sites |>
+  mutate(
+    color  = "green",
+    symbol = "paddle"
+  )
+```
+
+For datasets where style varies by row — color by category, size by
+value — including the styling columns in the inline data makes the
+mapping explicit and inspectable. The example chapters demonstrate
+both approaches.

@@ -12,19 +12,43 @@ a story about settlement patterns and landscape.
 
 ## The data
 
-`Zundert_hamlets.csv` contains hamlet names with coordinates:
-
 ```{r}
 #| eval: false
 library(gePoints)
 library(readr)
 library(dplyr)
+library(gt)
 
-zundert <- read_csv("data/Zundert_hamlets.csv")
-zundert
+zundert <- read_csv(
+"text,                        lat,       lon
+Achtmaal,                     51.45250,  4.58194
+Rijsbergen,                   51.51694,  4.69611
+Wernhout,                     51.45583,  4.64250
+De Berk,                      51.57667,  5.77333
+De Lent,                      52.44361,  5.74778
+Helpt Elkander,               52.00927,  5.93669
+'t Kapelleke,                 51.70250,  5.90725
+Klein Zundert,                51.47480,  4.64310
+Klein-Zundertse Heikant,      51.45900,  4.64570
+Laarheide,                    51.45550,  4.70700
+Laer-Akkermolen,              51.49500,  4.75150
+Markt,                        51.45660,  4.64110
+Molenstraat,                  51.47230,  4.64870
+Poteind,                      51.48490,  4.61240
+Raamberg,                     51.44410,  4.65890
+Stuivezand,                   51.43420,  4.60730
+'t Stuk,                      51.54210,  5.81640
+Schijf,                       51.49140,  4.54020
+Tiggelaar,                    51.47230,  4.70270
+Veldstraat,                   51.47040,  4.61150"
+)
+
+gt(zundert) |>
+  tab_caption(caption = "Hamlets of Zundert") |>
+  tab_source_note(source_note = "Source: Compiled from municipal records")
 ```
 
-The coordinates cluster tightly — all 21 hamlets fall within a
+The coordinates cluster tightly — most hamlets fall within a
 rectangle roughly 15 km by 15 km. This density makes the Google Earth
 overlay particularly effective, because at the zoom level needed to see
 all the points, the satellite imagery resolves individual fields and
@@ -34,10 +58,7 @@ roads.
 
 ```{r}
 #| eval: false
-zundert_kml <- zundert |>
-  rename(text = text, lat = lat, lon = lon)
-
-create_kml(zundert_kml, "zundert_basic.kml")
+create_kml(zundert, "zundert_basic.kml")
 ```
 
 Twenty-one red pushpins on the Dutch countryside. Even this default
@@ -52,7 +73,6 @@ rather than dominate it:
 ```{r}
 #| eval: false
 zundert_styled <- zundert |>
-  rename(text = text, lat = lat, lon = lon) |>
   mutate(
     color        = "blue",
     symbol       = "paddle",

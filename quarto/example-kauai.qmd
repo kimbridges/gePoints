@@ -15,33 +15,48 @@ low, moderate, and extreme precipitation zones.
 
 ## The data
 
-`Kauai_rainfall.csv` contains station name, coordinates, elevation in
-meters, and mean annual rainfall in millimeters:
-
 ```{r}
 #| eval: false
 library(gePoints)
 library(readr)
 library(dplyr)
+library(gt)
 
-kauai <- read_csv("data/Kauai_rainfall.csv")
-kauai
+kauai <- read_csv(
+"text,                lat,        lon,        elev_m, rain_mm
+Waimea,               21.9563,  -159.6722,       6,    531
+Eleele,               21.9035,  -159.5772,      50,    762
+Wahiawa,              21.8963,  -159.5572,      66,    918
+Lihue Airport,        21.9816,  -159.3422,      31,   1015
+West Lawai,           21.8902,  -159.5172,      64,   1165
+Puu Auau,             22.1828,  -159.3322,     101,   1193
+Kanalohuluhulu,       22.1302,  -159.6589,    1098,   1568
+Halenanaho,           21.9649,  -159.4305,     149,   1905
+Koloko Res,           22.1814,  -159.3778,     224,   1993
+Kapahi,               22.1000,  -159.3800,     159,   2140
+Pow Hse Wainiha,      22.1918,  -159.5555,      30,   2746
+Waialeale Trail,      22.0761,  -159.5361,    1390,   4068
+Wailua Ditch,         22.0625,  -159.4677,     338,   4092
+Kilohana Alakai,      22.1541,  -159.5946,    1220,   4373
+Mt. Waialeale,        22.0709,  -159.4980,    1570,  10004"
+)
+
+gt(kauai) |>
+  tab_caption(caption = "Kauai Rainfall Stations") |>
+  tab_source_note(source_note = "Source: NOAA / Hawaii State Climate Office") |>
+  fmt_number(columns = rain_mm, use_seps = TRUE, decimals = 0)
 ```
 
 The rainfall column spans from 531 mm (Waimea) to 10,004 mm (Mt.
 Waialeale). The elevation ranges from 6 m at the coast to 1,570 m at
-the summit.
+the summit. With the data in a `gt` table, the gradient is already
+visible — the numbers climb as you read down the rows.
 
 ## Basic KML
 
-A first pass with station names as labels:
-
 ```{r}
 #| eval: false
-kauai_basic <- kauai |>
-  rename(text = text, lat = lat, lon = lon)
-
-create_kml(kauai_basic, "kauai_basic.kml")
+create_kml(kauai, "kauai_basic.kml")
 ```
 
 In Google Earth, 15 red pushpins appear scattered across Kauai. The
@@ -58,19 +73,19 @@ Encode rainfall in both color and marker size:
 kauai_styled <- kauai |>
   mutate(
     comment = paste0(
-      "Elevation: ", round(elevation), " m\n",
-      "Rainfall: ", format(round(rainfall), big.mark = ","), " mm/yr"
+      "Elevation: ", elev_m, " m\n",
+      "Rainfall: ", format(rain_mm, big.mark = ","), " mm/yr"
     ),
     color = case_when(
-      rainfall < 1000  ~ "yellow",     # Dry
-      rainfall < 2000  ~ "green",      # Moderate
-      rainfall < 4000  ~ "blue",       # Wet
-      TRUE             ~ "purple"      # Extreme
+      rain_mm < 1000  ~ "yellow",
+      rain_mm < 2000  ~ "green",
+      rain_mm < 4000  ~ "blue",
+      TRUE            ~ "purple"
     ),
-    symbol = "paddle",
-    symbol_scale = 0.8 + (log10(rainfall) / 4),
-    text_color = "white",
-    text_scale = 0.8
+    symbol       = "paddle",
+    symbol_scale = 0.8 + (log10(rain_mm) / 4),
+    text_color   = "white",
+    text_scale   = 0.8
   )
 
 create_kml(kauai_styled, "kauai_rainfall.kml")

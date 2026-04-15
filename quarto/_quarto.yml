@@ -12,7 +12,7 @@ book:
     - getting-started.qmd
     - marker-styles.qmd
     - text-labels.qmd
-    - working-with-csv.qmd
+    - data-preparation.qmd
     - example-neon.qmd
     - example-herbaria.qmd
     - example-kauai.qmd
