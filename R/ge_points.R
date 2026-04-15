@@ -5,6 +5,7 @@
 #' 
 #' @docType package
 #' @name gePoints
+#' @importFrom rlang %||%
 NULL
 
 #' Create a KML file from location data
