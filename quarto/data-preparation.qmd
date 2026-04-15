@@ -125,3 +125,86 @@ For datasets where style varies by row — color by category, size by
 value — including the styling columns in the inline data makes the
 mapping explicit and inspectable. The example chapters demonstrate
 both approaches.
+
+## Previewing maps with `preview_map()`
+
+The `preview_map()` function takes the same data frame as
+`create_kml()` and renders an interactive Google Maps satellite view
+directly in a Quarto document or the RStudio viewer. It is a preview
+tool — a way to see your points on real imagery before taking the KML
+file to Google Earth for the full 3D experience.
+
+```{r}
+#| eval: false
+create_kml(sites, "sites.kml")
+preview_map(sites)
+```
+
+The map defaults to satellite imagery. Other options are `"roadmap"`,
+`"terrain"`, and `"hybrid"`:
+
+```{r}
+#| eval: false
+preview_map(sites, map_type = "hybrid")
+```
+
+Click any circle to see a popup built from the `text` and `comment`
+columns. The circle colors match the `color` column in your data
+frame. The map auto-zooms to fit all points.
+
+### Google Maps API key
+
+`preview_map()` requires a Google Maps API key. The function reads
+the key from the environment variable `GGMAP_GOOGLE_API_KEY`. If you
+have not set this up, the steps are:
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+   and create a project (or use an existing one).
+2. Enable the **Maps JavaScript API** for that project.
+3. Create an API key under **Credentials**.
+4. Add the key to your `.Renviron` file so R finds it automatically:
+
+```{r}
+#| eval: false
+# Open .Renviron for editing
+usethis::edit_r_environ()
+```
+
+Add this line to the file:
+
+```
+GGMAP_GOOGLE_API_KEY=your-key-here
+```
+
+Save, restart R, and verify:
+
+```{r}
+#| eval: false
+Sys.getenv("GGMAP_GOOGLE_API_KEY")
+```
+
+The key is stored on your machine, never in your source code or
+published documents. This is the same environment variable used by
+the `ggmap` package, so if you already use `ggmap`, the key is
+already in place.
+
+You can also pass the key directly if needed:
+
+```{r}
+#| eval: false
+preview_map(sites, api_key = "your-key-here")
+```
+
+### Circle radius
+
+The circle size auto-scales to the geographic extent of your data.
+For fine control, set the radius in meters:
+
+```{r}
+#| eval: false
+# Smaller circles for dense, local data
+preview_map(sites, radius = 2000)
+
+# Larger circles for continent-scale data
+preview_map(sites, radius = 50000)
+```
